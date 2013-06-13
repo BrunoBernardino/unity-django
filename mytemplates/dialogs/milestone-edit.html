@@ -1,0 +1,19 @@
+<script type="text/x-underscore-template" id="templates-dialog-milestones-edit">
+	<div class="dialog-form milestones-edit">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>" data-id="<%= milestone.id %>">
+			<div class="form-field">
+				<label>Name</label>
+				<input type="text" placeholder="Name of the Milestone" name="name" class="input-xlarge" value="<% if (milestone.attributes.name) { %><%= _.escape(milestone.attributes.name) %><% } %>">
+			</div>
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"><% if (milestone.attributes.description) { %><%= _.escape(milestone.attributes.description) %><% } %></textarea>
+			</div>
+			<div class="form-field">
+				<label>Due Date</label>
+				<input type="text" name="due_date" class="input-large" value="<% if (milestone.attributes.due_date) { %><%= _.escape(milestone.attributes.due_date.substr(0,10)) %><% } %>">
+				<small class="help-block">Format: {% now 'Y-m-d' %}</small>
+			</div>
+		</form>
+	</div>
+</script>

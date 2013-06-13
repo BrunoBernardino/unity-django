@@ -1,0 +1,111 @@
+{% load compress %}<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="description" content="">
+	<meta name="author" content="Wozia">
+
+	<title>unity{% block title %}{% endblock %}</title>
+
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon" />
+
+	{% compress css %}
+	<link href="/static/css/bootstrap.css" type="text/css" rel="stylesheet" charset="utf-8">
+	<link href="/static/css/bootstrap-theme.css" type="text/css" rel="stylesheet" charset="utf-8">
+	<link href="/static/css/bootstrap-responsive.css" type="text/css" rel="stylesheet" charset="utf-8">
+	<link href="/static/css/combined.css" type="text/css" rel="stylesheet" charset="utf-8">
+	<link href="/static/css/global.less" type="text/less" rel="stylesheet" charset="utf-8">
+	{% endcompress %}
+</head>
+<body>
+	<div id="wrapper">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="/"><img src="/static/img/logo-white.png" alt="{ unity }" class="logo"></a>
+				<div class="nav-collapse">
+					<ul class="nav">
+						{% if user.is_authenticated %}
+						<li{% if current_menu == 'dashboard' %} class="active"{% endif %}><a href="/">Dashboard</a></li>
+						<li class="divider-vertical"></li>
+						<li{% if current_menu == 'projects' %} class="active"{% endif %}><a href="/projects/">Projects</a></li>
+						<li class="divider-vertical"></li>
+						<li{% if current_menu == 'calendar' %} class="active"{% endif %}><a href="/calendar/">Calendar</a></li>
+						<li class="divider-vertical"></li>
+						<li{% if current_menu == 'tasks' %} class="active"{% endif %}><a href="/tasks/">Tasks</a></li>
+						<li class="divider-vertical"></li>
+						{% comment %}{% if user.is_staff %}
+						<li{% if current_menu == 'companies' %} class="active"{% endif %}><a href="/companies/">Companies</a></li>
+						<li class="divider-vertical"></li>
+						{% endif %}{% endcomment %}
+						{% if user.is_staff %}
+						<li{% if current_menu == 'chat' %} class="active"{% endif %}><a href="#chat" class="muted">Chat</a></li>
+						<li class="divider-vertical"></li>
+						<li{% if current_menu == 'gitlab' %} class="active"{% endif %}><a href="//gitlab.wozia.com" target="_blank">GitLab</a></li>
+						<li class="divider-vertical"></li>
+						<li{% if current_menu == 'quotes' %} class="active"{% endif %}><a href="#quotes" class="muted">Quotes</a></li>
+						<li class="divider-vertical"></li>
+						{% endif %}
+						<li class="dropdown profile">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+								<img class="user-avatar-nav" src="{{ user.get_profile.getAvatar }}" alt="{{ user.first_name|escape }} {{ user.last_name|escape }}">
+								<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li{% if current_menu == 'profile' %} class="active"{% endif %}><a href="/profile/">Profile</a></li>
+								<li><a href="/logout/">Logout</a></li>
+							</ul>
+						</li>
+						{% else %}
+						<li class="profile"><a href="/login/">Login</a></li>
+						{% endif %}
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
+
+	<div id="main-loading">
+		<div class="main-loading-container">
+			<div class="spin-loading"></div>
+		</div>
+	</div>
+
+	<div id="main-alert-zone">
+		<div class="main-alert-zone-container">
+		</div>
+	</div>
+
+	{% block content %}{% endblock %}
+		<div class="push"><!--//--></div>
+	</div><!-- /#wrapper -->
+
+	<footer class="footer">
+		<div class="container">
+			<p class="pull-right"><a href="#">Back to top</a></p>
+			<p><img src="/static/img/logo-white.png" alt="{ unity }" class="logo"> by <a href="http://wozia.com" target="_blank">Wozia</a>.</p>
+			<ul class="footer-links">
+				<li><a href="mailto:hello@wozia.com">Support / Help</a></li>
+			</ul>
+		</div>
+	</footer>
+	
+	{% compress js %}
+	<script src="/static/js/combined.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/js/global.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	{% include "dialogs/global.html" %}
+	
+	{% block javascript %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,33 @@
+<script type="text/x-underscore-template" id="templates-dialog-tasks-edit">
+	<div class="dialog-form tasks-edit">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>" data-id="<%= task.id %>"<% if (info.project && info.project.id) { %> data-project="<%= info.project %>" data-list="<%= info.list %>"<% } %>>
+			<div class="form-field">
+				<label>Title</label>
+				<input type="text" placeholder="Title of the Task" name="title" class="input-xlarge" value="<% if (task.attributes.title) { %><%= _.escape(task.attributes.title) %><% } %>">
+			</div>
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"><% if (task.attributes.description) { %><%= _.escape(task.attributes.description) %><% } %></textarea>
+			</div>
+			<div class="form-field">
+				<label>Due Date</label>
+				<input type="text" name="due_date" class="input-large" value="<% if (task.attributes.due_date) { %><%= _.escape(task.attributes.due_date.substr(0,10)) %><% } %>">
+				<small class="help-block">Format: {% now 'Y-m-d' %}</small>
+			</div>
+			<div class="form-field">
+				<label>Priority</label>
+				<input type="text" name="priority" class="input-medium" placeholder="99999" value="<%= _.escape(task.attributes.priority) %>">
+				<small class="help-block">Optional. 1 = Highest priority.</small>
+			</div>
+			<div class="form-field">
+				<label>Assigned to</label>
+				<select name="responsible" class="input-xlarge">
+					<option value="">No one</option>
+					<% _.each(users, function(user) { %>
+						<option value="<%= user.id %>"<% if (task.attributes.responsible && task.attributes.responsible.id == user.id) { %> selected="selected"<% } %>><%= _.escape(user.company.name) %>: <%= _.escape(user.first_name) %> <%= _.escape(user.last_name) %></option>
+					<% }) %>
+				</select>
+			</div>
+		</form>
+	</div>
+</script>

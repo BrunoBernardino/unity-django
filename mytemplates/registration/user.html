@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %} | {{ viewed_user.first_name }} {{ viewed_user.last_name }}{% endblock %}
+{% block content %}
+	<div class="container" id="main">
+
+		<div class="pull-left">
+			<a href="{{ viewed_user.profile.getAvatar }}" target="_blank"><img class="user-avatar" src="{{ viewed_user.profile.getAvatar }}" alt="{{ viewed_user.first_name }} {{ viewed_user.last_name }}"></a>
+		</div>
+		<h1>{{ viewed_user.first_name }} {{ viewed_user.last_name }}</h1>
+		<p><strong>Email:</strong> {{ viewed_user.email }}</p>
+		<p><strong>Phone:</strong> {% if viewed_user.profile.phone %}{{ viewed_user.profile.phone }}{% else %}N/A{% endif %}</p>
+		<p><strong>Website:</strong> {% if viewed_user.profile.url %}<a href="{{ viewed_user.profile.url }}" target="_blank">{{ viewed_user.profile.url }}</a>{% else %}N/A{% endif %}</p>
+
+	</div> <!-- /container -->
+{% endblock %}

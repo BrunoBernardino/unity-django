@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: {{ discussion.title }}{% endblock %}
+{% load projects_extras %}
+{% load tz %}
+{% block content %}
+	{% localtime on %}
+	<div class="container" id="main" data-project="{{ project.id }}" data-discussion="{{ discussion.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li><a href="{% url project-discussions project.slug %}">Discussions</a> <span class="divider">//</span></li>
+			<li class="active">{{ discussion.title }}</li>
+		</ul>
+
+		<h1><em>Discussion:</em> {{ discussion.title }}{% if discussion.completed %} <span class="label label-success">Completed</span>{% endif %} <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				{% if not discussion.completed %}
+				<li><a href="#" class="comments-new" data-dialog="comments-new">Add a New Comment</a></li>
+				{% endif %}
+				<li><a href="#" class="discussion-edit" data-dialog="discussions-edit">Edit Discussion</a></li>
+				<li><a href="#" class="discussion-complete{% if discussion.completed %} hidden{% endif%}">Mark Discussion as Complete</a></li>
+				<li><a href="#" class="discussion-incomplete{% if not discussion.completed %} hidden{% endif%}">Mark Discussion as Incomplete</a></li>
+			</ul>
+		</div>{% if discussion.private %} <i class="icon-lock" title="This Discussion and its comments are visible only to people in Wozia"></i>{% endif %}</h1>
+
+		<div class="clearfix">
+			<div class="pull-left">
+				<img class="user-avatar on-top" src="{{ discussion.author.get_profile.getAvatar }}" alt="{{ discussion.author.get_full_name }}">
+			</div>
+
+			<blockquote class="pull-left clearfix">
+				{{ discussion.content|urlize|linebreaksbr }}
+				<br /><br />
+				<small>Posted on <strong><time>{{ discussion.date|date:"Y M d, H:i" }}</time></strong> by <strong>{{ discussion.author.first_name }}</strong></small>
+			</blockquote>
+		</div>
+
+		{% if files %}
+			<h5>Attachments</h5>
+			<ul class="attachments unstyled">
+			{% for file in files %}
+				<li><i class="icon-file"></i> <a href="{{ file.url }}" target="_blank">{{ file.file|truncatechars_start:30 }}</a> <small>(<a href="{{ file.info_url }}" target="_blank">more info</a>)</small></li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+
+		<h2>Comments</h2>
+
+		<div class="row-fluid">
+			<section class="comments-listing listing span12">
+				<div id="discussion-comments">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+
+			{% if not discussion.completed %}
+			<a href="#" class="comments-new btn btn-primary" data-dialog="comments-new">Add a New Comment</a>
+			{% endif %}
+		</div>
+
+	</div> <!-- /container -->
+	{% endlocaltime %}
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/discussion.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-comment">
+		<% _.each(comments, function(comment) { %>
+		<article class="comment well span12">
+			<span class="actions">
+				<a href="#" class="edit" data-id="<%= comment.id %>" title="Edit this Comment"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= comment.id %>" title="Delete this Comment"><i class="icon-remove"></i></a>
+			</span>
+			<div class="pull-left">
+				<img class="user-avatar" src="<%= _.escape(comment.author.profile.avatar) %>" alt="<%= comment.author.first_name %> <%= comment.author.last_name %>">
+			</div>
+			<h3><strong><%= comment.author.first_name %></strong>:</h3>
+			<p><%= _.escape(comment.content).replace(new RegExp('\r?\n', 'g'), '<br />') %></p>
+			<p><small><i class="icon-calendar"></i> Posted on <strong><time><%= $.format.date(new Date(comment.date), 'yyyy MMM dd HH:mm') %></time></strong></small></p>
+			<% if (comment.files.length) { %>
+				<h5>Attachments</h5>
+				<ul class="attachments unstyled">
+				<% _.each(comment.files, function(file) { %>
+					<li><i class="icon-file"></i> <a href="<%= file.url %>" target="_blank">...<%= _.escape(decodeURI(file.file).substr(-30)) %></a> <small>(<a href="<%= file.info_url %>" target="_blank">more info</a>)</small></li>
+				<% }); %>
+				</ul>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (comments.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No comments!</h4>
+			<p>This discussion doesn't have any comments.{% if not discussion.completed %} <a href="#" class="comments-new" data-dialog="comments-new">Create one now</a>{% endif %}</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/discussion-edit.html" %}
+	{% include "dialogs/comment-new.html" %}
+	{% include "dialogs/comment-edit.html" %}
+{% endblock %}

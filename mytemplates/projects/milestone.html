@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: {{ milestone.name }}{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}" data-milestone="{{ milestone.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li><a href="{% url project-milestones project.slug %}">Milestones</a> <span class="divider">//</span></li>
+			<li class="active">{{ milestone.name }}</li>
+		</ul>
+
+		<h1><em>Milestone:</em> {{ milestone.name }} <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="milestone-edit" data-dialog="milestones-edit">Edit Milestone</a></li>
+				<li><a href="#" class="milestone-complete{% if milestone.completed %} hidden{% endif%}">Mark Milestone as Complete</a></li>
+				<li><a href="#" class="milestone-incomplete{% if not milestone.completed %} hidden{% endif%}">Mark Milestone as Incomplete</a></li>
+			</ul>
+		</div></h1>
+		<p class="lead">{{ milestone.description|urlize|linebreaksbr }}{% if milestone.completed %} <span class="label label-success">Completed</span>{% endif %}</p>
+
+		<p><i class="icon-calendar"></i> Due on <strong><time>{{ milestone.due_date|date:"Y M d" }}</time></strong></p>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/milestone.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Dialog views -->
+	{% include "dialogs/milestone-edit.html" %}
+{% endblock %}

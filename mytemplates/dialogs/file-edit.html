@@ -1,0 +1,10 @@
+<script type="text/x-underscore-template" id="templates-dialog-files-edit">
+	<div class="dialog-form files-edit">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>" data-id="<%= file.id %>">
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"><% if (file.attributes.description) { %><%= _.escape(file.attributes.description) %><% } %></textarea>
+			</div>
+		</form>
+	</div>
+</script>

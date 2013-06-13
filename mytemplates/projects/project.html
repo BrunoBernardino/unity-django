@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }}{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li class="active">{{ project.name }}</li>
+		</ul>
+
+		<h1>{{ project.name }}</h1>
+		<p class="lead">{{ project.description|urlize|linebreaksbr }}</p>
+
+		<div class="row-fluid">
+			<section class="project-lists listing clearfix">
+				<h2><a href="{% url project-lists project.slug %}">Lists</a> <a href="#" class="lists-new btn btn-primary" data-dialog="lists-new">Add a New List</a></h2>
+				<div id="project-lists">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+
+			<section class="project-milestones listing clearfix">
+				<h2><a href="{% url project-milestones project.slug %}">Milestones</a> <a href="#" class="milestones-new btn btn-primary" data-dialog="milestones-new">Add a New Milestone</a></h2>
+				<div id="project-milestones">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+
+			<section class="project-discussions listing clearfix">
+				<h2><a href="{% url project-discussions project.slug %}">Discussions</a> <a href="#" class="discussions-new btn btn-primary" data-dialog="discussions-new">Add a New Discussion</a></h2>
+				<div id="project-discussions">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+
+			<section class="project-files listing clearfix">
+				<h2><a href="{% url project-files project.slug %}">Files</a></h2>
+				<div id="project-files">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/project.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-list">
+		<% _.each(lists, function(list) { %>
+		<article class="list well span3">
+			<span class="actions">
+				<a href="#" class="delete" data-id="<%= list.id %>" title="Delete this List"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= list.url %>"><%= _.escape(list.name) %><% if (list.private) { %> <i class="icon-lock" title="This List is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><%= _.escape(list.description) %></p>
+			<% if (list.milestone && list.milestone.id) { %>
+				<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(list.milestone.due_date), 'yyyy MMM dd') %></time></strong> <small>(<a href="<%= list.milestone.url %>"><%= list.milestone.name %></a>)</small></p>
+			<% } %>
+			<p><i class="icon-tasks"></i> <small><%= list.tasks_incomplete.length %> task<% if (list.tasks_incomplete.length != 1) { %>s<% } %> <span class="muted">(<%= list.tasks_complete.length %> completed)</span></small></p>
+		</article>
+		<% }); %>
+		<% if (lists.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No lists!</h4>
+			<p>No lists yet! <a href="#" class="lists-new" data-dialog="lists-new">Create one now</a>.</p>
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-milestone">
+		<% _.each(milestones, function(milestone) { %>
+		<article class="milestone well span3">
+			<span class="actions">
+				<a href="#" class="delete" data-id="<%= milestone.id %>" title="Delete this Milestone"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= milestone.url %>"><%= _.escape(milestone.name) %></a></h3>
+			<p><%= _.escape(milestone.description) %></p>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(milestone.due_date), 'yyyy MMM dd') %></time></strong></p>
+		</article>
+		<% }); %>
+		<% if (milestones.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No milestones!</h4>
+			<p>No milestones yet! <a href="#" class="milestones-new" data-dialog="milestones-new">Create one now</a>.</p>
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-discussion">
+		<% _.each(discussions, function(discussion) { %>
+		<article class="discussion well span3">
+			<span class="actions">
+				<a href="#" class="delete" data-id="<%= discussion.id %>" title="Delete this Discussion"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= discussion.url %>"><%= _.escape(discussion.title) %><% if (discussion.private) { %> <i class="icon-lock" title="This Discussion is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><i class="icon-time"></i> On <strong><time><%= $.format.date(new Date(discussion.date), "MMM dd, HH:mm") %></time></strong> by <strong><%= discussion.author.first_name %></strong></p>
+			<p><%= _.escape(discussion.content.substr(0,50)) %>...</p>
+		</article>
+		<% }); %>
+		<% if (discussions.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No discussions!</h4>
+			<p>No discussions yet! <a href="#" class="discussions-new" data-dialog="discussions-new">Create one now</a>.</p>
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-file">
+		<% _.each(files, function(file) { %>
+		<article class="file well span3">
+			<span class="actions">
+				<a href="#" class="delete" data-id="<%= file.id %>" title="Delete this File"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= file.url %>">...<%= _.escape(decodeURI(file.file).substr(-15)) %><% if (file.private) { %> <i class="icon-lock" title="This File is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><i class="icon-time"></i> On <strong><time><%= $.format.date(new Date(file.date), "MMM dd, HH:mm") %></time></strong> by <strong><%= file.author.first_name %></strong></p>
+			<% if (file.description.length) { %>
+			<p><%= _.escape(file.description.substr(0,50)) %>...</p>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (files.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No files!</h4>
+			<p>No files yet! You can attach files in discussions, discussion comments, tasks, task comments, and file comments.</p>
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/list-new.html" %}
+	{% include "dialogs/milestone-new.html" %}
+	{% include "dialogs/discussion-new.html" %}
+{% endblock %}

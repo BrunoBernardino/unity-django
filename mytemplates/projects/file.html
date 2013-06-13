@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load projects_extras %}
+{% block title %} | {{ project.name }} :: {{ file.file|truncatechars_start:15 }}{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}" data-file="{{ file.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li><a href="{% url project-files project.slug %}">Files</a> <span class="divider">//</span></li>
+			<li class="active">{{ file.file|truncatechars_start:15 }}</li>
+		</ul>
+
+		<h1><em>File:</em> {{ file.file|truncatechars_start:15 }} <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="comments-new" data-dialog="comments-new">Add a New Comment</a></li>
+				<li><a href="#" class="file-edit" data-dialog="file-edit">Edit File</a></li>
+			</ul>
+		</div> <a href="{{ file.file.url }}" class="btn btn-info" target="_blank">View/Download File</a>{% if file.private %} <i class="icon-lock" title="This File and its comments are visible only to people in Wozia"></i>{% endif %}</h1>
+
+		<p class="lead">As seen on <a href="{{ relatedObject.get_absolute_url }}" target="_blank">this {{ relatedObjectName }}</a>.</p>
+
+		<blockquote>
+			{{ file.description|urlize|linebreaksbr }}
+			<br /><br />
+			<small>Posted on <strong><time>{{ file.date|date:"Y M d, H:i" }}</time></strong> by <strong>{{ file.author.first_name }}</strong></small>
+		</blockquote>
+
+		<h2>Comments</h2>
+
+		<div class="row-fluid">
+			<section class="comments-listing listing span12">
+				<div id="file-comments">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+
+			<a href="#" class="comments-new btn btn-primary" data-dialog="comments-new">Add a New Comment</a>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/file.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-comment">
+		<% _.each(comments, function(comment) { %>
+		<article class="comment well span12">
+			<span class="actions">
+				<a href="#" class="edit" data-id="<%= comment.id %>" title="Edit this Comment"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= comment.id %>" title="Delete this Comment"><i class="icon-remove"></i></a>
+			</span>
+			<div class="pull-left">
+				<img class="user-avatar" src="<%= _.escape(comment.author.profile.avatar) %>" alt="<%= comment.author.first_name %> <%= comment.author.last_name %>">
+			</div>
+			<h3><strong><%= comment.author.first_name %></strong>:</h3>
+			<p><%= _.escape(comment.content).replace(new RegExp('\r?\n', 'g'), '<br />') %></p>
+			<p><small><i class="icon-calendar"></i> Posted on <strong><time><%= $.format.date(new Date(comment.date), 'yyyy MMM dd HH:mm') %></time></strong></small></p>
+			<% if (comment.files.length) { %>
+				<h5>Attachments</h5>
+				<ul class="attachments unstyled">
+				<% _.each(comment.files, function(file) { %>
+					<li><i class="icon-file"></i> <a href="<%= file.url %>" target="_blank">...<%= _.escape(decodeURI(file.file).substr(-30)) %></a> <small>(<a href="<%= file.info_url %>" target="_blank">more info</a>)</small></li>
+				<% }); %>
+				</ul>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (comments.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No comments!</h4>
+			<p>This file doesn't have any comments. <a href="#" class="comments-new" data-dialog="comments-new">Create one now</a></p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/file-edit.html" %}
+	{% include "dialogs/comment-new.html" %}
+	{% include "dialogs/comment-edit.html" %}
+{% endblock %}

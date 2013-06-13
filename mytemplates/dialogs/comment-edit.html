@@ -1,0 +1,10 @@
+<script type="text/x-underscore-template" id="templates-dialog-comments-edit">
+	<div class="dialog-form comments-edit">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>" data-id="<%= comment.id %>">
+			<div class="form-field">
+				<label>Comment</label>
+				<textarea name="content" class="input-xlarge"><% if (comment.attributes.content) { %><%= _.escape(comment.attributes.content) %><% } %></textarea>
+			</div>
+		</form>
+	</div>
+</script>

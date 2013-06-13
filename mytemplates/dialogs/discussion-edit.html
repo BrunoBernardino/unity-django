@@ -1,0 +1,21 @@
+<script type="text/x-underscore-template" id="templates-dialog-discussions-edit">
+	<div class="dialog-form discussions-edit">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>" data-id="<%= discussion.id %>">
+			<div class="form-field">
+				<label>Title</label>
+				<input type="text" placeholder="Title of the Discussion" name="title" class="input-xlarge" value="<% if (discussion.attributes.title) { %><%= _.escape(discussion.attributes.title) %><% } %>">
+			</div>
+			<div class="form-field">
+				<label>Message</label>
+				<textarea name="content" class="input-xlarge"><% if (discussion.attributes.content) { %><%= _.escape(discussion.attributes.content) %><% } %></textarea>
+			</div>
+			{% if user.is_staff %}
+			<div class="form-field">
+				<label class="checkbox">
+					<input type="checkbox" name="private" value="True"<% if (discussion.attributes.private) { %> checked="checked"<% } %>> Is the Discussion Private?
+				</label>
+			</div>
+			{% endif %}
+		</form>
+	</div>
+</script>

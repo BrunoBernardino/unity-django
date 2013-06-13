@@ -1,0 +1,25 @@
+<script type="text/x-underscore-template" id="templates-dialog-discussions-new">
+	<div class="dialog-form discussions-new">
+		<form enctype="multipart/form-data" action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>">
+			<div class="form-field">
+				<label>Title</label>
+				<input type="text" placeholder="Title of the Discussion" name="title" class="input-xlarge">
+			</div>
+			<div class="form-field">
+				<label>Message</label>
+				<textarea name="content" class="input-xlarge"></textarea>
+			</div>
+			{% if user.is_staff %}
+			<div class="form-field">
+				<label class="checkbox">
+					<input type="checkbox" name="private" value="True"> Is the Discussion Private?
+				</label>
+			</div>
+			{% endif %}
+			<div class="form-field">
+				<label>Attach file(s)</label>
+				<input type="file" name="files" class="input-xlarge" multiple="multiple">
+			</div>
+		</form>
+	</div>
+</script>

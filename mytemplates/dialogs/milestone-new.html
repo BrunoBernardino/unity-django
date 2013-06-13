@@ -1,0 +1,19 @@
+<script type="text/x-underscore-template" id="templates-dialog-milestones-new">
+	<div class="dialog-form milestones-new">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>">
+			<div class="form-field">
+				<label>Name</label>
+				<input type="text" placeholder="Name of the Milestone" name="name" class="input-xlarge">
+			</div>
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"></textarea>
+			</div>
+			<div class="form-field">
+				<label>Due Date</label>
+				<input type="text" name="due_date" class="input-large">
+				<small class="help-block">Format: {% now 'Y-m-d' %}</small>
+			</div>
+		</form>
+	</div>
+</script>

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %} | Tasks{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-user="{{ user.id }}">
+		<h1>Tasks</h1>
+
+		<p class="lead">Below are tasks assigned to you, grouped by project and list.</p>
+
+		<div class="row-fluid">
+			<section class="projects-listing listing span12">
+				<div id="user-projects">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/tasks.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-projects">
+		<% _.each(projects, function(project) { %>
+		<article class="project span12">
+			<h1><a href="<%= project.url %>"><%= _.escape(project.name) %></a></h1>
+
+			<section class="lists-listing listing span12">
+				<div class="user-project-lists" data-project="<%= project.id %>">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</article>
+		<% }); %>
+		<% if (projects.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No projects!</h4>
+			<p>You don't have any projects assigned to you.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-lists">
+		<% _.each(lists, function(list) { %>
+		<article class="list span12">
+			<h2><a href="<%= list.url %>"><%= _.escape(list.name) %></a> <a href="#" class="tasks-new btn btn-primary" data-dialog="tasks-new" data-project="<%= list.project.id %>" data-list="<%= list.id %>">Add a New Task</a></h2>
+			
+			<section class="lists-listing listing span12">
+				<div class="user-project-list-tasks" data-project="<%= list.project.id %>" data-list="<%= list.id %>">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</article>
+		<% }); %>
+		<% if (lists.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No lists!</h4>
+			<p>This project doesn't have any incomplete lists.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-tasks">
+		<% _.each(tasks, function(task) { %>
+		<article class="task well span3">
+			<span class="actions">
+				<a href="#" class="complete" data-id="<%= task.id %>" title="Complete this Task"><i class="icon-ok"></i></a>
+				<a href="#" class="edit" data-id="<%= task.id %>" title="Edit this Task"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= task.id %>" title="Delete this Task"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= task.url %>"><%= _.escape(task.title) %></a><% if (task.priority <= 20) { %> <span class="badge badge-info"><%= task.priority %></span><% } %></h3>
+			<p><% if (task.description.length > 190) { %><%= _.escape(task.description.substr(0,190)) %>...<% } else { %><%= _.escape(task.description) %><% }%></p>
+			<% if (task.due_date) { %>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(task.due_date), 'yyyy MMM dd') %></time></strong></p>
+			<% } %>
+			<% if (task.responsible && task.responsible.id) { %>
+			<p><i class="icon-user"></i> Assigned to <strong><%= task.responsible.first_name %></strong></p>
+			<% } %>
+			<p><i class="icon-comment"></i> <small><%= task.comments.length %> comment<% if (task.comments.length != 1) { %>s<% } %></small></p>
+		</article>
+		<% }); %>
+		<% if (tasks.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No tasks!</h4>
+			<p>This list doesn't have any incomplete tasks.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/task-new.html" %}
+	{% include "dialogs/task-edit.html" %}
+{% endblock %}

@@ -1,0 +1,37 @@
+<script type="text/x-underscore-template" id="templates-dialog-tasks-new">
+	<div class="dialog-form tasks-new">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>"<% if (info.project) { %> data-project="<%= info.project %>" data-list="<%= info.list %>"<% } %>>
+			<div class="form-field">
+				<label>Title</label>
+				<input type="text" placeholder="Title of the Task" name="title" class="input-xlarge">
+			</div>
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"></textarea>
+			</div>
+			<div class="form-field">
+				<label>Due Date</label>
+				<input type="text" name="due_date" class="input-large">
+				<small class="help-block">Format: {% now 'Y-m-d' %}</small>
+			</div>
+			<div class="form-field">
+				<label>Priority</label>
+				<input type="text" name="priority" class="input-medium" placeholder="99999">
+				<small class="help-block">Optional. 1 = Highest priority.</small>
+			</div>
+			<div class="form-field">
+				<label>Assigned to</label>
+				<select name="responsible" class="input-xlarge">
+					<option value="">No one</option>
+					<% _.each(users, function(user) { %>
+						<option value="<%= user.id %>"><%= _.escape(user.company.name) %>: <%= _.escape(user.first_name) %> <%= _.escape(user.last_name) %></option>
+					<% }) %>
+				</select>
+			</div>
+			<div class="form-field">
+				<label>Attach file(s)</label>
+				<input type="file" name="files" class="input-xlarge" multiple="multiple">
+			</div>
+		</form>
+	</div>
+</script>

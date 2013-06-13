@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: Lists{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li class="active">Lists</li>
+		</ul>
+
+		<h1>Lists! <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="lists-new" data-dialog="lists-new">Add a New List</a></li>
+				<li><a href="#" class="lists-view-complete">Show Completed Lists</a></li>
+				<li><a href="#" class="lists-hide-complete hidden">Hide Completed Lists</a></li>
+			</ul>
+		</div></h1>
+		<p class="lead">Here are the lists of tasks for <strong>{{ project.name }}</strong>.</p>
+
+		<div class="row-fluid">
+			<section class="completed-lists-listing listing span12 hidden">
+				<div id="project-complete-lists">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+			<section class="lists-listing listing span12">
+				<div id="project-lists">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+		
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/lists.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-list">
+		<% _.each(lists, function(list) { %>
+		<article class="list well span3">
+			<span class="actions">
+				<a href="#" class="complete" data-id="<%= list.id %>" title="Complete this List"><i class="icon-ok"></i></a>
+				<a href="#" class="edit" data-id="<%= list.id %>" title="Edit this List"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= list.id %>" title="Delete this List"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= list.url %>"><%= _.escape(list.name) %><% if (list.private) { %> <i class="icon-lock" title="This List is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><%= _.escape(list.description) %></p>
+			<% if (list.milestone && list.milestone.id) { %>
+				<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(list.milestone.due_date), 'yyyy MMM dd') %></time></strong> <small>(<a href="<%= list.milestone.url %>"><%= list.milestone.name %></a>)</small></p>
+			<% } %>
+			<p><i class="icon-tasks"></i> <small><%= list.tasks_incomplete.length %> task<% if (list.tasks_incomplete.length != 1) { %>s<% } %> <span class="muted">(<%= list.tasks_complete.length %> completed)</span></small></p>
+		</article>
+		<% }); %>
+		<% if (lists.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No lists!</h4>
+			<p>This project doesn't have any incomplete lists. <a href="#" class="lists-new" data-dialog="lists-new">Create one now</a></p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-complete-list">
+		<% _.each(lists, function(list) { %>
+		<article class="list well muted span3">
+			<span class="actions">
+				<a href="#" class="incomplete" data-id="<%= list.id %>" title="Mark this List as Incomplete"><i class="icon-check"></i></a>
+				<a href="#" class="edit" data-id="<%= list.id %>" title="Edit this List"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= list.id %>" title="Delete this List"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= list.url %>"><%= _.escape(list.name) %><% if (list.private) { %> <i class="icon-lock" title="This List is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><%= _.escape(list.description) %></p>
+			<% if (list.milestone && list.milestone.id) { %>
+				<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(list.milestone.due_date), 'yyyy MMM dd') %></time></strong> <small>(<a href="<%= list.milestone.url %>"><%= list.milestone.name %></a>)</small></p>
+			<% } %>
+			<p><i class="icon-tasks"></i> <small><%= list.tasks_incomplete.length %> task<% if (list.tasks_incomplete.length != 1) { %>s<% } %> (<%= list.tasks_complete.length %> task<% if (list.tasks_complete.length != 1) { %>s<% } %> completed)</small></p>
+		</article>
+		<% }); %>
+		<% if (lists.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No lists!</h4>
+			<p>This project doesn't have any complete lists.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/list-new.html" %}
+	{% include "dialogs/list-edit.html" %}
+{% endblock %}

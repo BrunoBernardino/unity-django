@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} | Projects{% endblock %}
+{% block content %}
+	<div class="container" id="main">
+
+		<h1>Projects!</h1>
+		<p class="lead">These are the projects you're involved in.</p>
+
+		{% if projects %}
+		<div class="row-fluid">
+		<section class="project-listing listing span12">
+			{% for project in projects %}
+			<article class="project well span3">
+				<h1><a href="{{ project.get_absolute_url }}">{{ project.name|truncatechars:25 }}</a></h1>
+				<p>{{ project.description|urlize|linebreaksbr }}</p>
+				<p><i class="icon-info-sign"></i> <small>{{ project.discussions.count }} discussion{{ project.discussions.count|pluralize }}, {{ project.get_tasks_count }} task{{ project.get_tasks_count|pluralize }}, {{ project.files.count }} file{{ project.files.count|pluralize }}</small></p>
+			</article>
+			{% endfor %}
+		</section>
+		</div>
+		{% else %}
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No projects!</h4>
+			<p>You're not assigned to any projects.</p>
+		</div>
+		{% endif %}
+		
+	</div> <!-- /container -->
+{% endblock %}

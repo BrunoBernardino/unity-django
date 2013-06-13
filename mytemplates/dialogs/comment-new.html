@@ -1,0 +1,14 @@
+<script type="text/x-underscore-template" id="templates-dialog-comments-new">
+	<div class="dialog-form comments-new">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>">
+			<div class="form-field">
+				<label>Comment</label>
+				<textarea name="content" class="input-xlarge"></textarea>
+			</div>
+			<div class="form-field">
+				<label>Attach file(s)</label>
+				<input type="file" name="files" class="input-xlarge" multiple="multiple">
+			</div>
+		</form>
+	</div>
+</script>

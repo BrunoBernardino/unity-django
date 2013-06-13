@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: Files{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li class="active">Files</li>
+		</ul>
+
+		<h1>Files</h1>
+		<p class="lead">Here's a list of the files for {{ project.name }}</p>
+
+		<div class="row-fluid">
+			<section class="files-listing listing span12">
+				<div id="project-files">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+		
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/files.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-file">
+		<% _.each(files, function(file) { %>
+		<article class="file well span6">
+			<span class="actions">
+				<a href="#" class="edit" data-id="<%= file.id %>" title="Edit this File"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= file.id %>" title="Delete this File"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= file.url %>">...<%= _.escape(decodeURI(file.file).substr(-30)) %><% if (file.private) { %> <i class="icon-lock" title="This File is visible only to people in Wozia"></i><% } %></a></h3>
+			<p><i class="icon-time"></i> On <strong><time><%= $.format.date(new Date(file.date), "MMM dd, HH:mm") %></time></strong> by <strong><%= file.author.first_name %></strong></p>
+			<% if (file.description.length) { %>
+			<p><%= _.escape(file.description.substr(0,100)) %>...</p>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (files.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No files!</h4>
+			<p>This project doesn't have any files.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/file-edit.html" %}
+{% endblock %}

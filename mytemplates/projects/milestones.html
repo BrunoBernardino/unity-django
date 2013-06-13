@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: Milestones{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li class="active">Milestones</li>
+		</ul>
+
+		<h1>Milestones <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="milestones-new" data-dialog="milestones-new">Add a New Milestone</a></li>
+				<li><a href="#" class="milestones-view-complete">Show Completed Milestones</a></li>
+				<li><a href="#" class="milestones-hide-complete hidden">Hide Completed Milestones</a></li>
+			</ul>
+		</div></h1>
+		<p class="lead">Here's a list of the milestones for {{ project.name }}</p>
+
+		<div class="row-fluid">
+			<section class="completed-milestones-listing listing span12 hidden">
+				<div id="project-complete-milestones">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+			<section class="milestones-listing listing span12">
+				<div id="project-milestones">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/milestones.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-milestone">
+		<% _.each(milestones, function(milestone) { %>
+		<article class="milestone well span6">
+			<span class="actions">
+				<a href="#" class="complete" data-id="<%= milestone.id %>" title="Complete this Milestone"><i class="icon-ok"></i></a>
+				<a href="#" class="edit" data-id="<%= milestone.id %>" title="Edit this Milestone"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= milestone.id %>" title="Delete this Milestone"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= milestone.url %>"><%= _.escape(milestone.name) %></a></h3>
+			<p><%= _.escape(milestone.description) %></p>
+			<% if (milestone.due_date) { %>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(milestone.due_date), 'yyyy MMM dd') %></time></strong></p>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (milestones.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No milestones!</h4>
+			<p>This project doesn't have any incomplete milestones. <a href="#" class="milestones-new" data-dialog="milestones-new">Create one now</a></p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-complete-milestone">
+		<% _.each(milestones, function(milestone) { %>
+		<article class="milestone well muted span6">
+			<span class="actions">
+				<a href="#" class="incomplete" data-id="<%= milestone.id %>" title="Mark this Milestone as Incomplete"><i class="icon-check"></i></a>
+				<a href="#" class="edit" data-id="<%= milestone.id %>" title="Edit this Milestone"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= milestone.id %>" title="Delete this Milestone"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= milestone.url %>"><%= _.escape(milestone.name) %></a></h3>
+			<p><%= _.escape(milestone.description) %></p>
+			<% if (milestone.due_date) { %>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(milestone.due_date), 'yyyy MMM dd') %></time></strong></p>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (milestones.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No milestones!</h4>
+			<p>This project doesn't have any complete milestones.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/milestone-new.html" %}
+	{% include "dialogs/milestone-edit.html" %}
+{% endblock %}

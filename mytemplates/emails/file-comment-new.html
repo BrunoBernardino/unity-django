@@ -1,0 +1,20 @@
+{% extends "emails/email_base.html" %}{% load projects_extras %}
+{% block content %}
+
+<h1>New File Comment</h1>
+
+<p>Hi {{ user.first_name }},</p>
+
+<p>{{ author.get_full_name }} posted a new file comment for the "{{ project.name }}" project:</p>
+
+<hr />
+
+<h2><a href="{{ main_url }}{{ file.get_absolute_url }}">{{ file.file|truncatechars_start:15 }}</a></h2>
+
+<blockquote>
+{{ file_comment.content|urlize|linebreaksbr }}
+</blockquote>
+
+<p>You can view and reply to it <a href="{{ main_url }}{{ file.get_absolute_url }}">on { unity }</a></p>
+
+{% endblock %}

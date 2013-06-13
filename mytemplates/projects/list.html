@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %} | {{ project.name }} :: {{ list.name }}{% endblock %}
+{% block content %}
+	<div class="container" id="main" data-project="{{ project.id }}" data-list="{{ list.id }}">
+		<ul class="breadcrumb">
+			<li><a href="{% url projects %}">Projects</a> <span class="divider">//</span></li>
+			<li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a> <span class="divider">//</span></li>
+			<li><a href="{% url project-lists project.slug %}">Lists</a> <span class="divider">//</span></li>
+			<li class="active">{{ list.name }}</li>
+		</ul>
+
+		<h1><em>List:</em> {{ list.name }} <div class="btn-group">
+			<button class="btn btn-primary">Actions</button>
+			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="tasks-new" data-dialog="tasks-new">Add a New Task</a></li>
+				<li><a href="#" class="list-edit" data-dialog="lists-edit">Edit List</a></li>
+				<li><a href="#" class="list-complete">Mark List as Complete</a></li>
+				<li><a href="#" class="list-view-complete">Show Completed Tasks</a></li>
+				<li><a href="#" class="list-hide-complete hidden">Hide Completed Tasks</a></li>
+			</ul>
+		</div>{% if list.private %} <i class="icon-lock" title="This List and its tasks are visible only to people in Wozia"></i>{% endif %}</h1>
+		<p class="lead">{{ list.description|urlize|linebreaksbr }}{% if list.completed %} <span class="label label-success">Completed</span>{% endif %}</p>
+
+		{% if list.milestone %}
+			<p><i class="icon-calendar"></i> Due on <strong><time>{{ list.milestone.due_date|date:"Y M d" }}</time></strong> <small>(<a href="{{ list.milestone.get_absolute_url }}">{{ list.milestone.name }}</a>)</small></p>
+		{% endif %}
+
+		<div class="row-fluid">
+			<section class="completed-tasks-listing listing span12 hidden">
+				<div id="project-complete-tasks">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+			<section class="tasks-listing listing span12">
+				<div id="project-tasks">
+					<div class="spin-loading"></div>
+				</div>
+			</section>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/list.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	<!-- Listing views -->
+	<script type="text/x-underscore-template" id="templates-backbone-task">
+		<% _.each(tasks, function(task) { %>
+		<article class="task well span6">
+			<span class="actions">
+				<a href="#" class="complete" data-id="<%= task.id %>" title="Complete this Task"><i class="icon-ok"></i></a>
+				<a href="#" class="edit" data-id="<%= task.id %>" title="Edit this Task"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= task.id %>" title="Delete this Task"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= task.url %>"><%= _.escape(task.title) %></a><% if (task.priority <= 20) { %> <span class="badge badge-info"><%= task.priority %></span><% } %></h3>
+			<p><% if (task.description.length > 190) { %><%= _.escape(task.description.substr(0,190)) %>...<% } else { %><%= _.escape(task.description) %><% }%></p>
+			<% if (task.due_date) { %>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(task.due_date), 'yyyy MMM dd') %></time></strong></p>
+			<% } %>
+			<% if (task.responsible && task.responsible.id) { %>
+			<p><i class="icon-user"></i> Assigned to <strong><%= task.responsible.first_name %></strong></p>
+			<% } %>
+			<p><i class="icon-comment"></i> <small><%= task.comments.length %> comment<% if (task.comments.length != 1) { %>s<% } %></small></p>
+		</article>
+		<% }); %>
+		<% if (tasks.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No tasks!</h4>
+			<p>This list doesn't have any incomplete tasks. <a href="#" class="tasks-new" data-dialog="tasks-new">Create one now</a></p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<script type="text/x-underscore-template" id="templates-backbone-complete-task">
+		<% _.each(tasks, function(task) { %>
+		<article class="task well muted span6">
+			<span class="actions">
+				<a href="#" class="incomplete" data-id="<%= task.id %>" title="Mark this Task as Incomplete"><i class="icon-check"></i></a>
+				<a href="#" class="edit" data-id="<%= task.id %>" title="Edit this Task"><i class="icon-pencil"></i></a>
+				<a href="#" class="delete" data-id="<%= task.id %>" title="Delete this Task"><i class="icon-remove"></i></a>
+			</span>
+			<h3><a href="<%= task.url %>"><%= _.escape(task.title) %></a><% if (task.priority <= 20) { %> <span class="badge badge-info"><%= task.priority %></span><% } %></h3>
+			<p><% if (task.description.length > 190) { %><%= _.escape(task.description.substr(0,190)) %>...<% } else { %><%= _.escape(task.description) %><% }%></p>
+			<% if (task.due_date) { %>
+			<p><i class="icon-calendar"></i> Due on <strong><time><%= $.format.date(new Date(task.due_date), 'yyyy MMM dd') %></time></strong></p>
+			<% } %>
+			<% if (task.responsible && task.responsible.id) { %>
+			<p><i class="icon-user"></i> Assigned to <strong><%= task.responsible.first_name %></strong></p>
+			<% } %>
+		</article>
+		<% }); %>
+		<% if (tasks.length == 0) { %>
+		<div class="alert alert-block alert-info fade in">
+			<h4 class="alert-heading">No tasks!</h4>
+			<p>This list doesn't have any complete tasks.</p><!-- ' -->
+		</div>
+		<% } %>
+	</script>
+
+	<!-- Dialog views -->
+	{% include "dialogs/list-edit.html" %}
+	{% include "dialogs/task-new.html" %}
+	{% include "dialogs/task-edit.html" %}
+{% endblock %}

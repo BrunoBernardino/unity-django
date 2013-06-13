@@ -1,0 +1,30 @@
+<script type="text/x-underscore-template" id="templates-dialog-lists-new">
+	<div class="dialog-form lists-new">
+		<form action="<%= info.url %>" method="post" class="dialog-crud" data-model="<%= info.model %>" data-crud="<%= info.crud %>">
+			<div class="form-field">
+				<label>Name</label>
+				<input type="text" placeholder="Name of the List" name="name" class="input-xlarge">
+			</div>
+			<div class="form-field">
+				<label>Milestone</label>
+				<select name="milestone" class="input-xlarge">
+					<option value="">None</option>
+					<% _.each(milestones, function(milestone) { %>
+						<option value="<%= milestone.id %>"><%= _.escape(milestone.name) %></option>
+					<% }); %>
+				</select>
+			</div>
+			<div class="form-field">
+				<label>Description</label>
+				<textarea name="description" class="input-xlarge"></textarea>
+			</div>
+			{% if user.is_staff %}
+			<div class="form-field">
+				<label class="checkbox">
+					<input type="checkbox" name="private" value="True"> Is the List Private?
+				</label>
+			</div>
+			{% endif %}
+		</form>
+	</div>
+</script>

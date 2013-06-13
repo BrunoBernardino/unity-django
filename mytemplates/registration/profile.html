@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %} | Profile{% endblock %}
+{% block content %}
+	<div class="container" id="main">
+		<h1>Profile</h1>
+		<p class="lead">Here you can change your contact information and login details.</p>
+
+		<div class="row-fluid">
+			<section class="user-profile clearfix">
+				<form action="/profile/" method="post" class="clearfix">
+					<div class="pull-left span6">
+						<div class="form-field">
+							<label><strong>First Name</strong></label>
+							<input type="text" name="first_name" class="input-xlarge" value="{% if user.first_name %}{{ user.first_name|escape }}{% endif %}" required="required">
+						</div>
+						<div class="form-field">
+							<label>Last Name</label>
+							<input type="text" name="last_name" class="input-xlarge" value="{% if user.last_name %}{{ user.last_name|escape }}{% endif %}" required="required">
+						</div>
+						<div class="form-field">
+							<label><strong>Current Password</strong></label>
+							<input type="password" name="current_password" class="input-xlarge" autocomplete="off" required="required">
+							<small class="help-block">For security reasons we need your current password</small>
+						</div>
+						<div class="form-field">
+							<label>New Password</label>
+							<input type="password" name="new_password" class="input-xlarge" autocomplete="off">
+							<small class="help-block">Fill this field only if you want a new password</small>
+						</div>
+						<div class="form-field">
+							<label><strong>Timezone</strong></label>
+							<select name="timezone" class="input-large" required="required">
+								{% for timezone in timezones %}
+									<option value="{{ timezone|escape }}"{% if timezone == profile.timezone %} selected="selected"{% endif %}>{{ timezone|escape }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="pull-right span6">
+						<div class="form-field">
+							<label><strong>Email</strong></label>
+							<input type="email" name="email" class="input-xlarge" value="{% if user.email %}{{ user.email|escape }}{% endif %}" required="required">
+						</div>
+						<div class="form-field">
+							<label>Website</label>
+							<input type="url" name="url" class="input-xlarge" placeholder="http://wozia.com" value="{% if profile.url %}{{ profile.url|escape }}{% endif %}">
+						</div>
+						<div class="form-field">
+							<label>Phone</label>
+							<input type="tel" name="phone" class="input-xlarge" value="{% if profile.phone %}{{ profile.phone|escape }}{% endif %}">
+						</div>
+						<div class="form-field">
+							<label>Avatar</label>
+							<a href="{{ profile.getAvatar }}"><img class="user-avatar" src="{{ profile.getAvatar }}" alt="{{ user.first_name|escape }} {{ user.last_name|escape }}"></a>
+							<input type="file" name="avatar" class="input-xlarge">
+							<label class="checkbox{% if not profile.avatar %} hidden{% endif %}">
+								<input type="checkbox" name="remove_avatar" value="True"> Remove avatar?
+							</label>
+						</div>
+
+						<button type="submit" class="btn btn-primary">Update Profile</button>
+					</div>
+				</form>
+			</section>
+		</div>
+
+	</div> <!-- /container -->
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/profile.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+
+	{% if messages %}
+	<script type="text/javascript">
+		{% for message in messages %}
+		window.unityApp.showMessage("{{ message|addslashes }}");
+		{% endfor %}
+	</script>
+	{% endif %}
+{% endblock %}

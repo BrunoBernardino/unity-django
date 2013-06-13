@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %} | Calendar{% endblock %}
+{% block content %}
+	<div class="container" id="main">
+
+		<h1>Calendar!</h1>
+		<p class="lead">Here are milestones' and tasks' due dates for all projects.</p>
+
+		<div id="jMonthCalendar"></div>
+
+		<p class="lead legend"><span class="milestone"><i></i> Milestones</span> <span class="task"><i></i> Tasks</span></p>
+	</div> <!-- /container -->
+{% endblock %}
+{% block javascript %}
+	{{ block.super }}
+
+	{% load compress %}
+	{% compress js %}
+	<script src="/static/js/calendar.coffee" type="text/coffeescript" charset="utf-8"></script>
+	{% endcompress %}
+{% endblock %}
